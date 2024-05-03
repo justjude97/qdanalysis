@@ -160,5 +160,24 @@ def simple_stroke_segment(image):
 
     return extracted_strokes
 
+import networkx as nx
+"""
+works similar to stroke_decomposition, except that it returns the connected components of the graph used in the extraction process
+"""
+def extract_graph_components(image):
+    #TODO image_gs isn't used for anything here
+    image_gs, image_bin = prep.preprocess(image)
+
+    #step 2
+    # uses Zhang's algorithm as default for 2D
+    im_skeleton = skeletonize(image_bin)
+
+    #step 3
+    #convert to skeleton to graph representation
+    #Full doesn't seem to be properly implemented. seems to just set the 'start' and 'end' pixel coordinates to the mean of the node pixels
+    im_graph = sknw.build_sknw(im_skeleton, multi=True, full=False, ring=True)
+
+    #https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.connected_components.html
+    return [im_graph.subgraph(comp).copy() for comp in nx.connected_components(im_graph)]
 
 
